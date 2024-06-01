@@ -11,13 +11,16 @@ if [ "$HF_DATASETS_OFFLINE" = 1 ]; then
     echo "Warning: Offline mode is enabled. Using local copy of datasets"
     DATA_CONFIG_FILE="./data_configs/train_config_offline.yaml"
 else
-    DATA_CONFIG_FILE="./data_configs/train_video_eval.yaml"
+    # DATA_CONFIG_FILE="./data_configs/train_video_eval.yaml"
+    # DATA_CONFIG_FILE="./data_configs/train_video_eval_resample.yaml"
+    DATA_CONFIG_FILE="./data_configs/train_video_eval_no_real.yaml"
 fi
 if [ "$TRANSFORMERS_OFFLINE" = 1 ]; then
     echo "Warning: Offline mode is enabled. Using local copy of models"
     model_name_or_path="{local_model_path}"
 else
     model_name_or_path="HuggingFaceM4/idefics2-8b"
+    # model_name_or_path="TIGER-Lab/Mantis-8B-Idefics2"
 fi
 if [ "$HF_HUB_OFFLINE" = 1 ]; then
     echo "Warning: Offline mode is enabled. Using local copy of model and datasets"
@@ -44,9 +47,14 @@ lora_enabled=false
 qlora_enabled=false
 DATA_FORMAT="chat"
 OUTPUT_DIR="../../checkpoints"
-global_batch_size=64
+global_batch_size=128
 
-RUN_NAME="mantis-8b-idefics2-video-eval-50k"
+# RUN_NAME="mantis-8b-idefics2-video-eval-95k-mantis"
+# RUN_NAME="mantis-8b-idefics2-video-eval-95k-mantis-2epoch"
+# RUN_NAME="mantis-8b-idefics2-video-eval-95k"
+# RUN_NAME="mantis-8b-idefics2-video-eval-95k-2epoch"
+# RUN_NAME="mantis-8b-idefics2-video-eval-50k-2epoch"
+RUN_NAME="mantis-8b-idefics2-video-eval-32k"
 export WANDB_PROJECT="Mantis"
 if [ $lora_enabled = true ]; then
     echo "lora is enabled"
@@ -158,11 +166,11 @@ accelerate launch --config_file=$config_file \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps $gradient_accumulation_steps \
     --evaluation_strategy "no" \
-    --save_strategy "steps" \
-    --save_steps 100 \
-    --eval_steps 100 \
+    --save_strategy "no" \
+    --save_steps 500 \
+    --eval_steps 500 \
     --save_total_limit 1 \
-    --learning_rate 1e-5 \
+    --learning_rate 5e-6 \
     --weight_decay 0.01 \
     --warmup_ratio 0.03 \
     --lr_scheduler_type "cosine" \
