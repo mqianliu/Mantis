@@ -11,12 +11,8 @@ from transformers.image_utils import load_image
 processor = AutoProcessor.from_pretrained("TIGER-Lab/Mantis-8B-Idefics2") # do_image_splitting is False by default
 model = AutoModelForVision2Seq.from_pretrained(
     "TIGER-Lab/Mantis-8B-Idefics2",
-    # device_map="cuda:3"
+    device_map="auto"
 )
-
-device = torch.device('cuda:3')
-model.to(device)
-
 generation_kwargs = {
     "max_new_tokens": 1024,
     "num_beams": 1,
